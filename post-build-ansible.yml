@@ -1,0 +1,39 @@
+---
+- name: Post Build VM Configuration
+  hosts: all
+  become: yes
+
+  tasks:
+
+    - name: Update package cache
+      apt:
+        update_cache: yes
+
+    - name: Install administration tools
+      apt:
+        name:
+          - git
+          - curl
+          - wget
+          - unzip
+          - vim
+          - htop
+          - net-tools
+          - jq
+          - tree
+        state: present
+
+    - name: Install Azure CLI
+      shell: |
+        curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+      args:
+        creates: /usr/bin/az
+
+    - name: Verify Azure CLI installation
+      command: az version
+      register: az_version
+      changed_when: false
+
+    - name: Display Azure CLI version
+      debug:
+        var: az_version.stdout_lines
